@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Momos Notes - 设置</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Momos Notes 设置</h1>
+    </header>
+
+    <main class="main">
+      <form id="settingsForm" class="settings-form">
+        <div class="form-group">
+          <label for="apiUrl">API 地址 *</label>
+          <input
+            type="url"
+            id="apiUrl"
+            name="apiUrl"
+            placeholder="https://your-momos.com"
+            required
+          >
+          <small>请输入你的 Momos 服务地址（不包含 /api 路径）</small>
+        </div>
+
+        <div class="form-group">
+          <label for="apiKey">API 密钥</label>
+          <input
+            type="password"
+            id="apiKey"
+            name="apiKey"
+            placeholder="可选，如果你的服务需要认证"
+          >
+          <small>如果你的 Momos 服务需要 API 密钥，请在此输入</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">保存设置</button>
+          <button type="button" id="testBtn" class="btn-secondary">测试连接</button>
+        </div>
+      </form>
+
+      <div id="statusMessage" class="status-message hidden"></div>
+
+      <section class="info-section">
+        <h2>关于 Momos</h2>
+        <p>Momos 是一个轻量级的笔记应用，支持 Docker 部署。</p>
+        <a href="https://github.com/ctx1/momos" target="_blank" rel="noopener">
+          在 GitHub 上查看 Momos 项目
+        </a>
+      </section>
+    </main>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

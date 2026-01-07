@@ -100,9 +100,10 @@ async function loadNotes() {
       <div class="error-state">
         <p>加载失败</p>
         <p class="error-detail">${error.message}</p>
-        <button class="btn-secondary" onclick="loadNotes()">重试</button>
+        <button class="btn-secondary" id="retryBtn">重试</button>
       </div>
     `;
+    document.getElementById('retryBtn')?.addEventListener('click', loadNotes);
     showStatus('加载失败: ' + error.message, 'error');
   } finally {
     isLoading = false;

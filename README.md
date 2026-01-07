@@ -76,8 +76,8 @@ memos-chrome-extension/
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | `/api/notes` | 获取笔记列表 |
-| POST | `/api/notes` | 创建新笔记 |
+| GET | `/api/v1/memos` | 获取 memo 列表 |
+| POST | `/api/v1/memos` | 创建新 memo |
 
 **请求头**:
 ```

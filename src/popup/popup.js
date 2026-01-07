@@ -84,7 +84,7 @@ async function loadNotes() {
       headers['Authorization'] = `Bearer ${config.apiKey}`;
     }
 
-    const response = await fetch(`${config.apiUrl}/api/notes?limit=10`, {
+    const response = await fetch(`${config.apiUrl}/api/v1/memos?rowStatus=NORMAL&visibility=PRIVATE&limit=10`, {
       method: 'GET',
       headers
     });
@@ -94,7 +94,7 @@ async function loadNotes() {
     }
 
     const data = await response.json();
-    notes = Array.isArray(data) ? data : (data.notes || data.data || []);
+    notes = data.data || [];
 
     if (notes.length === 0) {
       notesList.innerHTML = '<div class="empty-state">暂无笔记，开始记录吧！</div>';
@@ -145,10 +145,13 @@ async function addNote() {
       headers['Authorization'] = `Bearer ${config.apiKey}`;
     }
 
-    const response = await fetch(`${config.apiUrl}/api/notes`, {
+    const response = await fetch(`${config.apiUrl}/api/v1/memos`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({ content })
+      body: JSON.stringify({
+        content,
+        visibility: 'PRIVATE'
+      })
     });
 
     if (!response.ok) {
@@ -171,9 +174,9 @@ async function addNote() {
 function renderNotes() {
   notesList.innerHTML = notes.map(note => `
     <div class="note-item">
-      <div class="note-content">${escapeHtml(note.content || note.text || '')}</div>
+      <div class="note-content">${escapeHtml(note.content || '')}</div>
       <div class="note-meta">
-        <span class="note-date">${formatDate(note.created_at || note.createdAt || note.date || Date.now())}</span>
+        <span class="note-date">${formatDate(note.createdTs || note.created_at || note.createdAt || Date.now())}</span>
       </div>
     </div>
   `).join('');

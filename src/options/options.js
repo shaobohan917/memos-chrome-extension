@@ -71,7 +71,7 @@ testBtn.addEventListener('click', async () => {
       headers['Authorization'] = `Bearer ${apiKey}`;
     }
 
-    const response = await fetch(`${cleanApiUrl}/api/notes?limit=1`, {
+    const response = await fetch(`${cleanApiUrl}/api/v1/memos?limit=1`, {
       method: 'GET',
       headers
     });

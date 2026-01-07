@@ -1,10 +1,10 @@
-// Background service worker for Momos Notes Chrome Extension
+// Background service worker for Memos Notes Chrome Extension
 // This file runs in the background to handle extension lifecycle events
 
 // Install event - runs when the extension is first installed
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
-    console.log('Momos Notes extension installed');
+    console.log('Memos Notes extension installed');
 
     // Set default empty settings
     chrome.storage.local.set({
@@ -14,7 +14,7 @@ chrome.runtime.onInstalled.addListener((details) => {
       console.log('Default settings initialized');
     });
   } else if (details.reason === 'update') {
-    console.log('Momos Notes extension updated to version:', chrome.runtime.getManifest().version);
+    console.log('Memos Notes extension updated to version:', chrome.runtime.getManifest().version);
   }
 });
 
@@ -43,7 +43,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 // Handle extension startup
 chrome.runtime.onStartup.addListener(() => {
-  console.log('Momos Notes extension started');
+  console.log('Memos Notes extension started');
 });
 
 // Keep service worker alive (optional, for persistent connections)

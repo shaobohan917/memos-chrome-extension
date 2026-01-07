@@ -1,6 +1,6 @@
-# Momos Notes Chrome Extension
+# Memos Notes Chrome Extension
 
-Chrome 浏览器插件，用于快速查看和创建 [Momos](https://github.com/ctx1/momos) 笔记。
+Chrome 浏览器插件，用于快速查看和创建 [Memos](https://github.com/usememos/memos) 笔记。
 
 ## 功能特性
 
@@ -18,7 +18,7 @@ Chrome 浏览器插件，用于快速查看和创建 [Momos](https://github.com/
 ## 目录结构
 
 ```
-momos-chrome-extension/
+memos-chrome-extension/
 ├── manifest.json           # 插件配置清单
 ├── README.md              # 项目说明
 ├── .gitignore            # Git 忽略文件
@@ -42,8 +42,8 @@ momos-chrome-extension/
 
 ### 前置要求
 
-1. 已部署的 Momos 服务（Docker 容器）
-2. Momos API 可访问地址
+1. 已部署的 Memos 服务（Docker 容器）
+2. Memos API 可访问地址
 3. Chrome 浏览器
 
 ### 安装步骤
@@ -56,23 +56,23 @@ momos-chrome-extension/
 
 4. 点击「加载已解压的扩展程序」
 
-5. 选择此项目的根目录 `momos-chrome-extension`
+5. 选择此项目的根目录 `memos-chrome-extension`
 
 6. 插件加载完成后，点击插件图标进入设置页面
 
 7. 配置以下信息：
-   - **API 地址**: 你的 Momos 服务地址（如：`https://your-server.com`）
-   - **API 密钥**: 你的 Momos API Token（如需要）
+   - **API 地址**: 你的 Memos 服务地址（如：`https://your-server.com`）
+   - **API 密钥**: 你的 Memos API Token（如需要）
 
 ### 使用方式
 
-1. 点击 Chrome 工具栏上的 Momos 图标
+1. 点击 Chrome 工具栏上的 Memos 图标
 2. 查看最近的笔记列表
 3. 在输入框中输入内容，点击「添加笔记」创建新笔记
 
 ## API 说明
 
-此插件需要与 Momos API 交互，请确保你的 Momos 服务支持以下接口：
+此插件需要与 Memos API 交互，请确保你的 Memos 服务支持以下接口：
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
@@ -100,13 +100,13 @@ Content-Type: application/json
 
 ## 常见问题
 
-**Q: 插件无法连接到 Momos 服务？**
+**Q: 插件无法连接到 Memos 服务？**
 - 检查 API 地址配置是否正确
 - 确认服务器 CORS 设置允许 Chrome 扩展访问
 - 检查 API 密钥是否有效
 
 **Q: 笔记列表为空？**
-- 确认 Momos 服务中已有笔记数据
+- 确认 Memos 服务中已有笔记数据
 - 打开浏览器开发者工具查看网络请求
 
 ## 许可证
@@ -115,5 +115,5 @@ MIT License
 
 ## 相关链接
 
-- [Momos GitHub](https://github.com/ctx1/momos)
+- [Memos GitHub](https://github.com/usememos/memos)
 - [Chrome Extension 开发文档](https://developer.chrome.com/docs/extensions/)

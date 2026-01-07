@@ -2,24 +2,33 @@
 let notes = [];
 let isLoading = false;
 
-// DOM Elements
-const noteInput = document.getElementById('noteInput');
-const addBtn = document.getElementById('addBtn');
-const refreshBtn = document.getElementById('refreshBtn');
-const settingsBtn = document.getElementById('settingsBtn');
-const notesList = document.getElementById('notesList');
-const statusMessage = document.getElementById('statusMessage');
+// DOM Elements (will be initialized after DOM is ready)
+let noteInput, addBtn, refreshBtn, settingsBtn, notesList, statusMessage;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
-  await checkConfigAndLoad();
-});
+  // Initialize DOM elements after DOM is ready
+  noteInput = document.getElementById('noteInput');
+  addBtn = document.getElementById('addBtn');
+  refreshBtn = document.getElementById('refreshBtn');
+  settingsBtn = document.getElementById('settingsBtn');
+  notesList = document.getElementById('notesList');
+  statusMessage = document.getElementById('statusMessage');
 
-// Event Listeners
-addBtn.addEventListener('click', addNote);
-refreshBtn.addEventListener('click', loadNotes);
-settingsBtn.addEventListener('click', () => {
-  chrome.runtime.openOptionsPage();
+  // Attach event listeners
+  addBtn.addEventListener('click', addNote);
+  refreshBtn.addEventListener('click', loadNotes);
+  settingsBtn.addEventListener('click', () => {
+    chrome.runtime.openOptionsPage();
+  });
+
+  noteInput.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      addNote();
+    }
+  });
+
+  await checkConfigAndLoad();
 });
 
 // Check configuration and load notes
@@ -228,10 +237,3 @@ function formatDate(date) {
     day: 'numeric'
   });
 }
-
-// Handle keyboard shortcut (Ctrl/Cmd + Enter to submit)
-noteInput.addEventListener('keydown', (e) => {
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-    addNote();
-  }
-});

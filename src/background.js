@@ -45,13 +45,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 chrome.runtime.onStartup.addListener(() => {
   console.log('Memos Notes extension started');
 });
-
-// Keep service worker alive (optional, for persistent connections)
-// Note: Chrome may still terminate the service worker after ~30 seconds of inactivity
-chrome.alarms.create('keepAlive', { periodInMinutes: 1 });
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === 'keepAlive') {
-    // Silent keep-alive, does nothing
-  }
-});

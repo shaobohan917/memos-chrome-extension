@@ -62,7 +62,10 @@ memos-chrome-extension/
 
 7. 配置以下信息：
    - **API 地址**: 你的 Memos 服务地址（如：`https://your-server.com`）
-   - **API 密钥**: 你的 Memos API Token（如需要）
+   - **API 密钥**: 从浏览器 Cookie 中获取 `memos.access-token` 的值
+     - 打开 Memos 网页并登录
+     - 按 F12 打开开发者工具 → Application → Cookies
+     - 找到 `memos.access-token`，复制其值
 
 ### 使用方式
 

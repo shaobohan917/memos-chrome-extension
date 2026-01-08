@@ -80,13 +80,15 @@ async function loadNotes() {
       'Content-Type': 'application/json'
     };
 
+    // Memos uses Cookie for authentication
     if (config.apiKey) {
-      headers['Authorization'] = `Bearer ${config.apiKey}`;
+      headers['Cookie'] = `memos.access-token=${config.apiKey}`;
     }
 
     const response = await fetch(`${config.apiUrl}/api/v1/memos?rowStatus=NORMAL&limit=10`, {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include'
     });
 
     if (!response.ok) {
@@ -143,13 +145,15 @@ async function addNote() {
       'Content-Type': 'application/json'
     };
 
+    // Memos uses Cookie for authentication
     if (config.apiKey) {
-      headers['Authorization'] = `Bearer ${config.apiKey}`;
+      headers['Cookie'] = `memos.access-token=${config.apiKey}`;
     }
 
     const response = await fetch(`${config.apiUrl}/api/v1/memos`, {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: JSON.stringify({
         content,
         visibility: 'PRIVATE'

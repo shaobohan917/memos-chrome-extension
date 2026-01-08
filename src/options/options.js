@@ -67,13 +67,15 @@ testBtn.addEventListener('click', async () => {
       'Content-Type': 'application/json'
     };
 
+    // Memos uses Cookie for authentication
     if (apiKey) {
-      headers['Authorization'] = `Bearer ${apiKey}`;
+      headers['Cookie'] = `memos.access-token=${apiKey}`;
     }
 
     const response = await fetch(`${cleanApiUrl}/api/v1/memos?limit=1`, {
       method: 'GET',
-      headers
+      headers,
+      credentials: 'include'
     });
 
     if (response.ok || response.status === 401) {

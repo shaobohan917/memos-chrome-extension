@@ -95,7 +95,7 @@ async function loadNotes() {
 
     const data = await response.json();
     console.log('API Response:', data);
-    notes = data.data || [];
+    notes = data.memos || [];
     console.log('Notes loaded:', notes.length, notes);
 
     if (notes.length === 0) {
@@ -178,7 +178,7 @@ function renderNotes() {
     <div class="note-item">
       <div class="note-content">${escapeHtml(note.content || '')}</div>
       <div class="note-meta">
-        <span class="note-date">${formatDate(note.createdTs || note.created_at || note.createdAt || Date.now())}</span>
+        <span class="note-date">${formatDate(note.createTime || note.createdTs || note.created_at || note.createdAt || Date.now())}</span>
       </div>
     </div>
   `).join('');

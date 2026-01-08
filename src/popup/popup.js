@@ -84,7 +84,7 @@ async function loadNotes() {
       headers['Authorization'] = `Bearer ${config.apiKey}`;
     }
 
-    const response = await fetch(`${config.apiUrl}/api/v1/memos?rowStatus=NORMAL&visibility=PRIVATE&limit=10`, {
+    const response = await fetch(`${config.apiUrl}/api/v1/memos?rowStatus=NORMAL&limit=10`, {
       method: 'GET',
       headers
     });
@@ -94,7 +94,9 @@ async function loadNotes() {
     }
 
     const data = await response.json();
+    console.log('API Response:', data);
     notes = data.data || [];
+    console.log('Notes loaded:', notes.length, notes);
 
     if (notes.length === 0) {
       notesList.innerHTML = '<div class="empty-state">暂无笔记，开始记录吧！</div>';
@@ -210,7 +212,9 @@ function escapeHtml(text) {
 
 // Helper: Format date
 function formatDate(date) {
-  const d = new Date(date);
+  // Memos uses Unix timestamp in seconds, convert to milliseconds
+  const timestamp = typeof date === 'number' && date < 10000000000 ? date * 1000 : date;
+  const d = new Date(timestamp);
   const now = new Date();
   const diff = now - d;
 

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memos Notes - Privacy Policy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .updated {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+        ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Memos Notes - Privacy Policy</h1>
+        <p class="updated"><strong>Last Updated:</strong> January 9, 2026</p>
+
+        <h2>Overview</h2>
+        <p>Memos Notes Chrome Extension ("the Extension") respects your privacy and does not collect, store, or transmit any personal data to external servers except as described in this policy.</p>
+
+        <h2>Data Collection</h2>
+        <p><strong>The Extension does NOT collect:</strong></p>
+        <ul>
+            <li>Personal identification information</li>
+            <li>Usage statistics or analytics</li>
+            <li>Browsing history</li>
+            <li>Any form of user tracking</li>
+        </ul>
+
+        <h2>Data Storage</h2>
+        <p>All data is stored locally on your device using Chrome's <code>storage.local</code> API:</p>
+        <ul>
+            <li><strong>API URL</strong>: Your Memos server address (e.g., https://your-server.com)</li>
+            <li><strong>API Token</strong>: Your Memos access token for authentication</li>
+        </ul>
+        <p>This data is stored locally in your browser and is never transmitted to any server other than your configured Memos server.</p>
+
+        <h2>Network Communications</h2>
+        <p>The Extension only communicates with:</p>
+        <ul>
+            <li><strong>Your configured Memos server</strong> - To fetch and create memos. All network requests are sent directly to the server you configure.</li>
+        </ul>
+        <p>The Extension does NOT communicate with any third-party servers or services.</p>
+
+        <h2>Permissions</h2>
+        <p>The Extension requires the following permissions:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Permission</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>storage</code></td>
+                    <td>To save your API configuration locally</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Data Sharing</h2>
+        <p><strong>The Extension does NOT share any data with third parties.</strong></p>
+        <p>All memos are stored on your own Memos server. We have no access to your memos or your server.</p>
+
+        <h2>User Control</h2>
+        <p>You have full control over your data:</p>
+        <ul>
+            <li><strong>View/Edit</strong>: Go to Extension Settings</li>
+            <li><strong>Delete</strong>: Clear browser data or remove the Extension</li>
+            <li><strong>Export</strong>: Your memos are stored on your Memos server</li>
+        </ul>
+
+        <h2>Children's Privacy</h2>
+        <p>The Extension is not directed to children under 13. We do not knowingly collect data from children.</p>
+
+        <h2>Changes to This Policy</h2>
+        <p>We may update this policy from time to time. Any changes will be posted on this page.</p>
+
+        <h2>Contact</h2>
+        <p>If you have questions about this policy, please <a href="https://github.com/shaobohan917/memos-chrome-extension/issues">open an issue on GitHub</a>.</p>
+
+        <div class="footer">
+            <p><strong>This Extension is open source software.</strong> You can review the source code at:</p>
+            <p><a href="https://github.com/shaobohan917/memos-chrome-extension">https://github.com/shaobohan917/memos-chrome-extension</a></p>
+        </div>
+    </div>
+</body>
+</html>

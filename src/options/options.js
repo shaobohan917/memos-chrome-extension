@@ -62,31 +62,21 @@ testBtn.addEventListener('click', async () => {
     testBtn.textContent = '测试中...';
     showStatus('正在测试连接...', 'info');
 
-    const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    // Memos uses Cookie for authentication
-    if (apiKey) {
-      headers['Cookie'] = `memos.access-token=${apiKey}`;
-    }
-
-    const response = await fetch(`${cleanApiUrl}/api/v1/memos?limit=1`, {
-      method: 'GET',
-      headers,
-      credentials: 'include'
+    // Send message to background service worker to test connection
+    const response = await chrome.runtime.sendMessage({
+      action: 'testConnection',
+      apiUrl: apiUrl,
+      apiKey: apiKey
     });
 
-    if (response.ok || response.status === 401) {
-      showStatus('连接成功！设置正常工作', 'success');
-    } else if (response.status === 404) {
-      showStatus('连接成功，但 API 路径可能不正确', 'warning');
+    if (!response) {
+      showStatus('连接失败: 未收到响应', 'error');
+    } else if (response.success) {
+      showStatus(response.message, 'success');
     } else {
-      showStatus(`连接失败: HTTP ${response.status}`, 'error');
+      showStatus(`连接失败: ${response.error}`, 'error');
     }
   } catch (error) {
-    console.error('Test connection error:', error);
     showStatus(`连接失败: ${error.message}`, 'error');
   } finally {
     testBtn.disabled = false;

@@ -76,29 +76,18 @@ async function loadNotes() {
 
     showLoading();
 
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    // Memos uses Cookie for authentication
-    if (config.apiKey) {
-      headers['Cookie'] = `memos.access-token=${config.apiKey}`;
-    }
-
-    const response = await fetch(`${config.apiUrl}/api/v1/memos?rowStatus=NORMAL&limit=10`, {
-      method: 'GET',
-      headers,
-      credentials: 'include'
+    // Send message to background service worker to load notes
+    const response = await chrome.runtime.sendMessage({
+      action: 'loadNotes',
+      apiUrl: config.apiUrl,
+      apiKey: config.apiKey
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (!response || !response.success) {
+      throw new Error(response?.error || '未收到响应');
     }
 
-    const data = await response.json();
-    console.log('API Response:', data);
-    notes = data.memos || [];
-    console.log('Notes loaded:', notes.length, notes);
+    notes = response.notes || [];
 
     if (notes.length === 0) {
       notesList.innerHTML = '<div class="empty-state">暂无笔记，开始记录吧！</div>';
@@ -108,7 +97,6 @@ async function loadNotes() {
 
     hideStatus();
   } catch (error) {
-    console.error('Load notes error:', error);
     notesList.innerHTML = `
       <div class="error-state">
         <p>加载失败</p>
@@ -141,34 +129,22 @@ async function addNote() {
     addBtn.disabled = true;
     addBtn.textContent = '添加中...';
 
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    // Memos uses Cookie for authentication
-    if (config.apiKey) {
-      headers['Cookie'] = `memos.access-token=${config.apiKey}`;
-    }
-
-    const response = await fetch(`${config.apiUrl}/api/v1/memos`, {
-      method: 'POST',
-      headers,
-      credentials: 'include',
-      body: JSON.stringify({
-        content,
-        visibility: 'PRIVATE'
-      })
+    // Send message to background service worker to add note
+    const response = await chrome.runtime.sendMessage({
+      action: 'addNote',
+      apiUrl: config.apiUrl,
+      apiKey: config.apiKey,
+      content: content
     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+    if (!response || !response.success) {
+      throw new Error(response?.error || '未收到响应');
     }
 
     noteInput.value = '';
     showStatus('笔记已添加', 'success');
     await loadNotes();
   } catch (error) {
-    console.error('Add note error:', error);
     showStatus('添加失败: ' + error.message, 'error');
   } finally {
     addBtn.disabled = false;

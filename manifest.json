@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
   "name": "Memos Notes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "快速查看和创建 Memos 笔记",
   "permissions": [
     "storage"
   ],
   "host_permissions": [
-    "https://memos.hanshaobo.top/*"
+    "https://*/*"
   ],
   "action": {
     "default_popup": "src/popup/popup.html",

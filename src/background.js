@@ -62,22 +62,84 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
+// Build headers with Bearer token auth (Memos v0.25+)
+function buildHeaders(apiKey) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (apiKey) {
+    headers['Authorization'] = `Bearer ${apiKey}`;
+  }
+  return headers;
+}
+
+// Resolve the current user ID. Tries multiple strategies since
+// Memos API endpoints vary across versions (0.23-0.28).
+async function resolveCurrentUserId(apiUrl, apiKey) {
+  const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+
+  // Strategy 1: /api/v1/auth/status (v0.25+)
+  try {
+    const resp = await fetch(`${cleanApiUrl}/api/v1/auth/status`, {
+      method: 'GET',
+      headers: buildHeaders(apiKey)
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.name) return data.name;
+    }
+  } catch { /* ignore */ }
+
+  // Strategy 2: /api/v1/users/me
+  try {
+    const resp = await fetch(`${cleanApiUrl}/api/v1/users/me`, {
+      method: 'GET',
+      headers: buildHeaders(apiKey)
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.name) return data.name;
+    }
+  } catch { /* ignore */ }
+
+  // Strategy 3: GET workspace profile to get owner
+  try {
+    const resp = await fetch(`${cleanApiUrl}/api/v1/workspace/profile`, {
+      method: 'GET',
+      headers: buildHeaders(apiKey)
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.owner) return data.owner;
+    }
+  } catch { /* ignore */ }
+
+  // Strategy 4: probe with common user IDs
+  for (const id of ['users/1', 'users/101']) {
+    try {
+      const params = new URLSearchParams({ limit: '1', filter: `creator == "${id}"` });
+      const resp = await fetch(`${cleanApiUrl}/api/v1/memos?${params.toString()}`, {
+        method: 'GET',
+        headers: buildHeaders(apiKey)
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if ((data.memos || []).length > 0) {
+          return id;
+        }
+      }
+    } catch { /* ignore */ }
+  }
+
+  throw new Error('Could not resolve current user ID');
+}
+
 // Test connection to Memos API
 async function testConnection(apiUrl, apiKey) {
   try {
     const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    // Memos uses Cookie for authentication
-    if (apiKey) {
-      headers['Cookie'] = `memos.access-token=${apiKey}`;
-    }
 
     const response = await fetch(`${cleanApiUrl}/api/v1/memos?limit=1`, {
       method: 'GET',
-      headers
+      headers: buildHeaders(apiKey)
     });
 
     if (response.ok || response.status === 401) {
@@ -96,18 +158,27 @@ async function testConnection(apiUrl, apiKey) {
 async function loadNotes(apiUrl, apiKey) {
   try {
     const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
 
-    // Memos uses Cookie for authentication
+    // If we have a token, resolve the current user and filter by creator
+    // to include PRIVATE memos that belong to this user
+    let filter = '';
     if (apiKey) {
-      headers['Cookie'] = `memos.access-token=${apiKey}`;
+      try {
+        const userId = await resolveCurrentUserId(apiUrl, apiKey);
+        filter = `creator == "${userId}"`;
+      } catch (e) {
+        console.warn('Could not resolve user ID, showing public memos only');
+      }
     }
 
-    const response = await fetch(`${cleanApiUrl}/api/v1/memos?rowStatus=NORMAL&limit=10`, {
+    const params = new URLSearchParams({ limit: '10' });
+    if (filter) {
+      params.set('filter', filter);
+    }
+
+    const response = await fetch(`${cleanApiUrl}/api/v1/memos?${params.toString()}`, {
       method: 'GET',
-      headers
+      headers: buildHeaders(apiKey)
     });
 
     if (!response.ok) {
@@ -125,21 +196,13 @@ async function loadNotes(apiUrl, apiKey) {
 async function addNote(apiUrl, apiKey, content) {
   try {
     const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-
-    // Memos uses Cookie for authentication
-    if (apiKey) {
-      headers['Cookie'] = `memos.access-token=${apiKey}`;
-    }
 
     const response = await fetch(`${cleanApiUrl}/api/v1/memos`, {
       method: 'POST',
-      headers,
+      headers: buildHeaders(apiKey),
       body: JSON.stringify({
         content,
-        visibility: 'PRIVATE'
+        visibility: 'PUBLIC'
       })
     });
 

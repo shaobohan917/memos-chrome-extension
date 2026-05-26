@@ -6,7 +6,6 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     console.log('Memos Notes extension installed');
 
-    // Set default empty settings
     chrome.storage.local.set({
       apiUrl: '',
       apiKey: ''
@@ -27,7 +26,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         apiKey: result.apiKey || ''
       });
     });
-    return true; // Keep message channel open for async response
+    return true;
   }
 
   if (request.action === 'setConfig') {
@@ -44,21 +43,21 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     testConnection(request.apiUrl, request.apiKey)
       .then(result => sendResponse(result))
       .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // Keep message channel open for async response
+    return true;
   }
 
   if (request.action === 'loadNotes') {
     loadNotes(request.apiUrl, request.apiKey)
       .then(result => sendResponse(result))
       .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // Keep message channel open for async response
+    return true;
   }
 
   if (request.action === 'addNote') {
     addNote(request.apiUrl, request.apiKey, request.content)
       .then(result => sendResponse(result))
       .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // Keep message channel open for async response
+    return true;
   }
 });
 
@@ -71,67 +70,6 @@ function buildHeaders(apiKey) {
   return headers;
 }
 
-// Resolve the current user ID. Tries multiple strategies since
-// Memos API endpoints vary across versions (0.23-0.28).
-async function resolveCurrentUserId(apiUrl, apiKey) {
-  const cleanApiUrl = apiUrl.replace(/\/+$/, '');
-
-  // Strategy 1: /api/v1/auth/status (v0.25+)
-  try {
-    const resp = await fetch(`${cleanApiUrl}/api/v1/auth/status`, {
-      method: 'GET',
-      headers: buildHeaders(apiKey)
-    });
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.name) return data.name;
-    }
-  } catch { /* ignore */ }
-
-  // Strategy 2: /api/v1/users/me
-  try {
-    const resp = await fetch(`${cleanApiUrl}/api/v1/users/me`, {
-      method: 'GET',
-      headers: buildHeaders(apiKey)
-    });
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.name) return data.name;
-    }
-  } catch { /* ignore */ }
-
-  // Strategy 3: GET workspace profile to get owner
-  try {
-    const resp = await fetch(`${cleanApiUrl}/api/v1/workspace/profile`, {
-      method: 'GET',
-      headers: buildHeaders(apiKey)
-    });
-    if (resp.ok) {
-      const data = await resp.json();
-      if (data.owner) return data.owner;
-    }
-  } catch { /* ignore */ }
-
-  // Strategy 4: probe with common user IDs
-  for (const id of ['users/1', 'users/101']) {
-    try {
-      const params = new URLSearchParams({ limit: '1', filter: `creator == "${id}"` });
-      const resp = await fetch(`${cleanApiUrl}/api/v1/memos?${params.toString()}`, {
-        method: 'GET',
-        headers: buildHeaders(apiKey)
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        if ((data.memos || []).length > 0) {
-          return id;
-        }
-      }
-    } catch { /* ignore */ }
-  }
-
-  throw new Error('Could not resolve current user ID');
-}
-
 // Test connection to Memos API
 async function testConnection(apiUrl, apiKey) {
   try {
@@ -142,7 +80,7 @@ async function testConnection(apiUrl, apiKey) {
       headers: buildHeaders(apiKey)
     });
 
-    if (response.ok || response.status === 401) {
+    if (response.ok) {
       return { success: true, message: '连接成功！设置正常工作' };
     } else if (response.status === 404) {
       return { success: true, message: '连接成功，但 API 路径可能不正确' };
@@ -155,27 +93,13 @@ async function testConnection(apiUrl, apiKey) {
 }
 
 // Load notes from Memos API
+// With Bearer token auth, Memos returns all memos for the authenticated user,
+// including PRIVATE ones. No CEL filter needed.
 async function loadNotes(apiUrl, apiKey) {
   try {
     const cleanApiUrl = apiUrl.replace(/\/+$/, '');
 
-    // If we have a token, resolve the current user and filter by creator
-    // to include PRIVATE memos that belong to this user
-    let filter = '';
-    if (apiKey) {
-      try {
-        const userId = await resolveCurrentUserId(apiUrl, apiKey);
-        filter = `creator == "${userId}"`;
-      } catch (e) {
-        console.warn('Could not resolve user ID, showing public memos only');
-      }
-    }
-
     const params = new URLSearchParams({ limit: '10' });
-    if (filter) {
-      params.set('filter', filter);
-    }
-
     const response = await fetch(`${cleanApiUrl}/api/v1/memos?${params.toString()}`, {
       method: 'GET',
       headers: buildHeaders(apiKey)
@@ -186,7 +110,16 @@ async function loadNotes(apiUrl, apiKey) {
     }
 
     const data = await response.json();
-    return { success: true, notes: data.memos || [] };
+    const memos = data.memos || [];
+
+    // Normalize field names: Memos v0.28 uses 'content', older versions use different names
+    const notes = memos.map(memo => ({
+      ...memo,
+      content: memo.content || '',
+      createTime: memo.createTime || memo.createdTs || memo.createdAt || memo.created_at || Date.now()
+    }));
+
+    return { success: true, notes };
   } catch (error) {
     return { success: false, error: error.message };
   }

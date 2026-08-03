@@ -1,0 +1,89 @@
+{
+  "extensionName": {"message": "Memos Notes"},
+  "extensionDescription": {"message": "快速查看和创建 Memos 笔记"},
+  "htmlLang": {"message": "zh-CN"},
+  "settings": {"message": "设置"},
+  "settingsTitle": {"message": "Memos Notes - 设置"},
+  "settingsHeading": {"message": "Memos Notes 设置"},
+  "openMemos": {"message": "打开 Memos"},
+  "refresh": {"message": "刷新"},
+  "quickNotePlaceholder": {"message": "快速记笔记..."},
+  "addNote": {"message": "添加笔记"},
+  "addingNote": {"message": "添加中..."},
+  "recentNotes": {"message": "最近笔记"},
+  "searchResults": {"message": "搜索结果"},
+  "searchAllNotes": {"message": "搜索全部笔记..."},
+  "clearSearch": {"message": "清除搜索"},
+  "loading": {"message": "加载中..."},
+  "configureApiFirst": {"message": "请先配置 API 地址"},
+  "unconfiguredApi": {"message": "未配置 API 设置"},
+  "goToSettings": {"message": "去设置"},
+  "responseNotReceived": {"message": "未收到响应"},
+  "loadFailed": {"message": "加载失败"},
+  "retry": {"message": "重试"},
+  "searchFailed": {"message": "搜索失败"},
+  "retrySearch": {"message": "重试搜索"},
+  "enterNoteContent": {"message": "请输入笔记内容"},
+  "noteAdded": {"message": "笔记已添加"},
+  "addFailedStatus": {
+    "message": "添加失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "loadFailedStatus": {
+    "message": "加载失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "searchFailedStatus": {
+    "message": "搜索失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "noRelatedNotes": {"message": "没有找到相关笔记"},
+  "noNotes": {"message": "暂无笔记，开始记录吧！"},
+  "openNote": {"message": "打开笔记"},
+  "noteUnavailable": {"message": "该笔记暂时无法打开"},
+  "openMemosFailedStatus": {
+    "message": "打开 Memos 失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "openNoteFailedStatus": {
+    "message": "打开笔记失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "justNow": {"message": "刚刚"},
+  "minutesAgo": {
+    "message": "$count$ 分钟前",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "hoursAgo": {
+    "message": "$count$ 小时前",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "daysAgo": {
+    "message": "$count$ 天前",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "apiUrlLabel": {"message": "API 地址 *"},
+  "apiUrlPlaceholder": {"message": "https://your-memos.com"},
+  "apiUrlHelp": {"message": "请输入你的 Memos 服务地址（不包含 /api 路径）"},
+  "apiKeyLabel": {"message": "访问令牌（可选）"},
+  "apiKeyPlaceholder": {"message": "在 Memos 设置 → 访问令牌中创建"},
+  "apiKeyHelp": {"message": "填写后即可查看和创建你的所有笔记（含私密笔记）。在 Memos 的「设置 → 访问令牌」页面中创建。"},
+  "saveSettings": {"message": "保存设置"},
+  "testConnection": {"message": "测试连接"},
+  "testing": {"message": "测试中..."},
+  "testingConnection": {"message": "正在测试连接..."},
+  "enterApiUrl": {"message": "请输入 API 地址"},
+  "enterApiUrlFirst": {"message": "请先输入 API 地址"},
+  "settingsSaved": {"message": "设置已保存"},
+  "connectionFailedNoResponse": {"message": "连接失败：未收到响应"},
+  "connectionFailedStatus": {
+    "message": "连接失败：$error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "aboutMemos": {"message": "关于 Memos"},
+  "aboutDescription": {"message": "Memos 是一个轻量级的笔记应用，支持 Docker 部署。"},
+  "viewMemosOnGithub": {"message": "在 GitHub 上查看 Memos 项目"},
+  "duplicatePageToken": {"message": "API 返回了重复的分页令牌"},
+  "connectionSuccess": {"message": "连接成功！设置正常工作"},
+  "connectionSuccessPathWarning": {"message": "连接成功，但 API 路径可能不正确"}
+}

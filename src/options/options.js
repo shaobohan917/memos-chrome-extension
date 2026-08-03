@@ -4,6 +4,9 @@ const apiUrlInput = document.getElementById('apiUrl');
 const apiKeyInput = document.getElementById('apiKey');
 const testBtn = document.getElementById('testBtn');
 const statusMessage = document.getElementById('statusMessage');
+const t = (key, substitutions) => memosI18n.getMessage(key, substitutions);
+
+memosI18n.applyTranslations();
 
 // Initialize: Load saved settings
 document.addEventListener('DOMContentLoaded', () => {
@@ -26,7 +29,7 @@ settingsForm.addEventListener('submit', async (e) => {
 
   // Validate API URL
   if (!apiUrl) {
-    showStatus('请输入 API 地址', 'error');
+    showStatus(t('enterApiUrl'), 'error');
     return;
   }
 
@@ -40,7 +43,7 @@ settingsForm.addEventListener('submit', async (e) => {
       apiKey: apiKey
     },
     () => {
-      showStatus('设置已保存', 'success');
+      showStatus(t('settingsSaved'), 'success');
       // Update input with cleaned URL
       apiUrlInput.value = cleanApiUrl;
     }
@@ -53,14 +56,14 @@ testBtn.addEventListener('click', async () => {
   const apiKey = apiKeyInput.value.trim();
 
   if (!apiUrl) {
-    showStatus('请先输入 API 地址', 'error');
+    showStatus(t('enterApiUrlFirst'), 'error');
     return;
   }
 
   try {
     testBtn.disabled = true;
-    testBtn.textContent = '测试中...';
-    showStatus('正在测试连接...', 'info');
+    testBtn.textContent = t('testing');
+    showStatus(t('testingConnection'), 'info');
 
     // Send message to background service worker to test connection
     const response = await chrome.runtime.sendMessage({
@@ -70,17 +73,17 @@ testBtn.addEventListener('click', async () => {
     });
 
     if (!response) {
-      showStatus('连接失败: 未收到响应', 'error');
+      showStatus(t('connectionFailedNoResponse'), 'error');
     } else if (response.success) {
       showStatus(response.message, 'success');
     } else {
-      showStatus(`连接失败: ${response.error}`, 'error');
+      showStatus(t('connectionFailedStatus', response.error), 'error');
     }
   } catch (error) {
-    showStatus(`连接失败: ${error.message}`, 'error');
+    showStatus(t('connectionFailedStatus', error.message), 'error');
   } finally {
     testBtn.disabled = false;
-    testBtn.textContent = '测试连接';
+    testBtn.textContent = t('testConnection');
   }
 });
 

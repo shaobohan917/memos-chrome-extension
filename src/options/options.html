@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Memos Notes - 设置</title>
+  <title data-i18n="settingsTitle">Memos Notes - Settings</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..72,400;0,9..72,600;0,9..72,700;1,9..72,400&display=swap" rel="stylesheet">
@@ -12,52 +12,55 @@
 <body>
   <div class="container">
     <header class="header">
-      <h1>Memos Notes 设置</h1>
+      <h1 data-i18n="settingsHeading">Memos Notes Settings</h1>
     </header>
 
     <main class="main">
       <form id="settingsForm" class="settings-form">
         <div class="form-group">
-          <label for="apiUrl">API 地址 *</label>
+          <label for="apiUrl" data-i18n="apiUrlLabel">API URL *</label>
           <input
             type="url"
             id="apiUrl"
             name="apiUrl"
+            data-i18n-placeholder="apiUrlPlaceholder"
             placeholder="https://your-memos.com"
             required
           >
-          <small>请输入你的 Memos 服务地址（不包含 /api 路径）</small>
+          <small data-i18n="apiUrlHelp">Enter your Memos server URL (without the /api path)</small>
         </div>
 
         <div class="form-group">
-          <label for="apiKey">访问令牌（可选）</label>
+          <label for="apiKey" data-i18n="apiKeyLabel">Access Token (optional)</label>
           <input
             type="password"
             id="apiKey"
             name="apiKey"
-            placeholder="在 Memos 设置 → 访问令牌中创建"
+            data-i18n-placeholder="apiKeyPlaceholder"
+            placeholder="Create one in Memos Settings → Access Tokens"
           >
-          <small>填写后即可查看和创建你的所有笔记（含私密笔记）。在 Memos 的「设置 → 访问令牌」页面中创建。</small>
+          <small data-i18n="apiKeyHelp">View and create all your notes, including private notes. Create a token in Memos Settings → Access Tokens.</small>
         </div>
 
         <div class="form-actions">
-          <button type="submit" class="btn-primary">保存设置</button>
-          <button type="button" id="testBtn" class="btn-secondary">测试连接</button>
+          <button type="submit" class="btn-primary" data-i18n="saveSettings">Save Settings</button>
+          <button type="button" id="testBtn" class="btn-secondary" data-i18n="testConnection">Test Connection</button>
         </div>
       </form>
 
       <div id="statusMessage" class="status-message hidden"></div>
 
       <section class="info-section">
-        <h2>关于 Memos</h2>
-        <p>Memos 是一个轻量级的笔记应用，支持 Docker 部署。</p>
-        <a href="https://github.com/usememos/memos" target="_blank" rel="noopener">
-          在 GitHub 上查看 Memos 项目
+        <h2 data-i18n="aboutMemos">About Memos</h2>
+        <p data-i18n="aboutDescription">Memos is a lightweight note-taking app that supports Docker deployment.</p>
+        <a href="https://github.com/usememos/memos" target="_blank" rel="noopener" data-i18n="viewMemosOnGithub">
+          View Memos on GitHub
         </a>
       </section>
     </main>
   </div>
 
+  <script src="../i18n.js"></script>
   <script src="options.js"></script>
 </body>
 </html>

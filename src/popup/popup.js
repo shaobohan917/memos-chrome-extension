@@ -6,11 +6,15 @@ let isLoading = false;
 let searchDebounceTimer = null;
 let searchRequestId = 0;
 
+const t = (key, substitutions) => memosI18n.getMessage(key, substitutions);
+
 // DOM Elements (will be initialized after DOM is ready)
 let noteInput, addBtn, refreshBtn, openMemosBtn, searchInput, clearSearchBtn, settingsBtn, notesList, notesTitle, statusMessage;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+  memosI18n.applyTranslations();
+
   // Initialize DOM elements after DOM is ready
   noteInput = document.getElementById('noteInput');
   addBtn = document.getElementById('addBtn');
@@ -52,11 +56,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function checkConfigAndLoad() {
   const config = await getConfig();
   if (!config.apiUrl) {
-    showStatus('请先配置 API 地址', 'error');
+    showStatus(t('configureApiFirst'), 'error');
     notesList.innerHTML = `
       <div class="config-prompt">
-        <p>未配置 API 设置</p>
-        <button class="btn-secondary" id="goToSettings">去设置</button>
+        <p>${escapeHtml(t('unconfiguredApi'))}</p>
+        <button class="btn-secondary" id="goToSettings">${escapeHtml(t('goToSettings'))}</button>
       </div>
     `;
     document.getElementById('goToSettings')?.addEventListener('click', () => {
@@ -88,7 +92,7 @@ async function loadNotes() {
   try {
     const config = await getConfig();
     if (!config.apiUrl) {
-      showStatus('请先配置 API 地址', 'error');
+      showStatus(t('configureApiFirst'), 'error');
       return;
     }
 
@@ -102,7 +106,7 @@ async function loadNotes() {
     });
 
     if (!response || !response.success) {
-      throw new Error(response?.error || '未收到响应');
+      throw new Error(response?.error || t('responseNotReceived'));
     }
 
     recentNotes = response.notes || [];
@@ -116,13 +120,13 @@ async function loadNotes() {
   } catch (error) {
     notesList.innerHTML = `
       <div class="error-state">
-        <p>加载失败</p>
+        <p>${escapeHtml(t('loadFailed'))}</p>
         <p class="error-detail">${escapeHtml(error.message)}</p>
-        <button class="btn-secondary" id="retryBtn">重试</button>
+        <button class="btn-secondary" id="retryBtn">${escapeHtml(t('retry'))}</button>
       </div>
     `;
     document.getElementById('retryBtn')?.addEventListener('click', loadNotes);
-    showStatus('加载失败: ' + error.message, 'error');
+    showStatus(t('loadFailedStatus', error.message), 'error');
   } finally {
     isLoading = false;
   }
@@ -146,7 +150,7 @@ async function searchNotes(query) {
 
     if (requestId !== searchRequestId || query !== searchQuery) return;
     if (!response || !response.success) {
-      throw new Error(response?.error || '未收到响应');
+      throw new Error(response?.error || t('responseNotReceived'));
     }
 
     notes = response.notes || [];
@@ -157,20 +161,20 @@ async function searchNotes(query) {
 
     notesList.innerHTML = `
       <div class="error-state">
-        <p>搜索失败</p>
+        <p>${escapeHtml(t('searchFailed'))}</p>
         <p class="error-detail">${escapeHtml(error.message)}</p>
-        <button class="btn-secondary" id="retrySearchBtn">重试搜索</button>
+        <button class="btn-secondary" id="retrySearchBtn">${escapeHtml(t('retrySearch'))}</button>
       </div>
     `;
     document.getElementById('retrySearchBtn')?.addEventListener('click', () => searchNotes(searchQuery));
-    showStatus('搜索失败: ' + error.message, 'error');
+    showStatus(t('searchFailedStatus', error.message), 'error');
   }
 }
 
 function handleSearchInput(event) {
   searchQuery = event.target.value.trim();
   clearSearchBtn.classList.toggle('hidden', !searchQuery);
-  notesTitle.textContent = searchQuery ? '搜索结果' : '最近笔记';
+  notesTitle.textContent = searchQuery ? t('searchResults') : t('recentNotes');
   clearTimeout(searchDebounceTimer);
 
   if (!searchQuery) {
@@ -187,19 +191,19 @@ function handleSearchInput(event) {
 async function addNote() {
   const content = noteInput.value.trim();
   if (!content) {
-    showStatus('请输入笔记内容', 'warning');
+    showStatus(t('enterNoteContent'), 'warning');
     return;
   }
 
   const config = await getConfig();
   if (!config.apiUrl) {
-    showStatus('请先配置 API 地址', 'error');
+    showStatus(t('configureApiFirst'), 'error');
     return;
   }
 
   try {
     addBtn.disabled = true;
-    addBtn.textContent = '添加中...';
+    addBtn.textContent = t('addingNote');
 
     // Send message to background service worker to add note
     const response = await chrome.runtime.sendMessage({
@@ -210,43 +214,43 @@ async function addNote() {
     });
 
     if (!response || !response.success) {
-      throw new Error(response?.error || '未收到响应');
+      throw new Error(response?.error || t('responseNotReceived'));
     }
 
     noteInput.value = '';
-    showStatus('笔记已添加', 'success');
+    showStatus(t('noteAdded'), 'success');
     await loadNotes();
   } catch (error) {
-    showStatus('添加失败: ' + error.message, 'error');
+    showStatus(t('addFailedStatus', error.message), 'error');
   } finally {
     addBtn.disabled = false;
-    addBtn.textContent = '添加笔记';
+    addBtn.textContent = t('addNote');
   }
 }
 
 // Render notes list
 function renderNotes() {
-  notesTitle.textContent = searchQuery ? '搜索结果' : '最近笔记';
+  notesTitle.textContent = searchQuery ? t('searchResults') : t('recentNotes');
 
   if (notes.length === 0) {
     notesList.innerHTML = searchQuery
       ? `
         <div class="empty-state">
-          <p>没有找到相关笔记</p>
-          <button class="btn-secondary" id="clearSearchStateBtn">清除搜索</button>
+          <p>${escapeHtml(t('noRelatedNotes'))}</p>
+          <button class="btn-secondary" id="clearSearchStateBtn">${escapeHtml(t('clearSearch'))}</button>
         </div>
       `
-      : '<div class="empty-state">暂无笔记，开始记录吧！</div>';
+      : `<div class="empty-state">${escapeHtml(t('noNotes'))}</div>`;
     document.getElementById('clearSearchStateBtn')?.addEventListener('click', clearSearch);
     return;
   }
 
   notesList.innerHTML = notes.map(note => `
-    <button type="button" class="note-item" data-note-name="${escapeHtml(note.name || '')}" aria-label="打开笔记">
+    <button type="button" class="note-item" data-note-name="${escapeHtml(note.name || '')}" aria-label="${escapeHtml(t('openNote'))}">
       <div class="note-content">${escapeHtml(note.content || '')}</div>
       <div class="note-meta">
         <span class="note-date">${formatDate(note.createTime || note.createdTs || note.created_at || note.createdAt || Date.now())}</span>
-        <span class="note-open-hint">打开笔记 ↗</span>
+        <span class="note-open-hint">${escapeHtml(t('openNote'))} ↗</span>
       </div>
     </button>
   `).join('');
@@ -267,14 +271,14 @@ function clearSearch() {
 async function openMemosPage() {
   const config = await getConfig();
   if (!config.apiUrl) {
-    showStatus('请先配置 API 地址', 'error');
+    showStatus(t('configureApiFirst'), 'error');
     return;
   }
 
   try {
     await chrome.tabs.create({ url: config.apiUrl });
   } catch (error) {
-    showStatus('打开 Memos 失败: ' + error.message, 'error');
+    showStatus(t('openMemosFailedStatus', error.message), 'error');
   }
 }
 
@@ -284,14 +288,14 @@ async function openNote(noteName) {
   const memoUrl = buildMemoUrl(config.apiUrl, noteName);
 
   if (!memoUrl) {
-    showStatus('该笔记暂时无法打开', 'warning');
+    showStatus(t('noteUnavailable'), 'warning');
     return;
   }
 
   try {
     await chrome.tabs.create({ url: memoUrl });
   } catch (error) {
-    showStatus('打开笔记失败: ' + error.message, 'error');
+    showStatus(t('openNoteFailedStatus', error.message), 'error');
   }
 }
 
@@ -307,7 +311,7 @@ function buildMemoUrl(apiUrl, noteName) {
 
 // Show loading state
 function showLoading() {
-  notesList.innerHTML = '<div class="loading">加载中...</div>';
+  notesList.innerHTML = `<div class="loading">${escapeHtml(t('loading'))}</div>`;
 }
 
 // Show status message
@@ -341,27 +345,27 @@ function formatDate(date) {
 
   // Less than 1 minute
   if (diff < 60000) {
-    return '刚刚';
+    return t('justNow');
   }
 
   // Less than 1 hour
   if (diff < 3600000) {
-    return Math.floor(diff / 60000) + ' 分钟前';
+    return t('minutesAgo', Math.floor(diff / 60000));
   }
 
   // Less than 1 day
   if (diff < 86400000) {
-    return Math.floor(diff / 3600000) + ' 小时前';
+    return t('hoursAgo', Math.floor(diff / 3600000));
   }
 
   // Less than 1 week
   if (diff < 604800000) {
-    return Math.floor(diff / 86400000) + ' 天前';
+    return t('daysAgo', Math.floor(diff / 86400000));
   }
 
   // Format as date
-  return d.toLocaleDateString('zh-CN', {
+  return new Intl.DateTimeFormat(memosI18n.getLocale(), {
     month: 'short',
     day: 'numeric'
-  });
+  }).format(d);
 }

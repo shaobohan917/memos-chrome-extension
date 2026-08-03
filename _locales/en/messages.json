@@ -1,0 +1,89 @@
+{
+  "extensionName": {"message": "Memos Notes"},
+  "extensionDescription": {"message": "Quickly view and create Memos notes"},
+  "htmlLang": {"message": "en"},
+  "settings": {"message": "Settings"},
+  "settingsTitle": {"message": "Memos Notes - Settings"},
+  "settingsHeading": {"message": "Memos Notes Settings"},
+  "openMemos": {"message": "Open Memos"},
+  "refresh": {"message": "Refresh"},
+  "quickNotePlaceholder": {"message": "Write a quick note..."},
+  "addNote": {"message": "Add Note"},
+  "addingNote": {"message": "Adding..."},
+  "recentNotes": {"message": "Recent Notes"},
+  "searchResults": {"message": "Search Results"},
+  "searchAllNotes": {"message": "Search all notes..."},
+  "clearSearch": {"message": "Clear search"},
+  "loading": {"message": "Loading..."},
+  "configureApiFirst": {"message": "Please configure the API URL first"},
+  "unconfiguredApi": {"message": "API settings not configured"},
+  "goToSettings": {"message": "Go to Settings"},
+  "responseNotReceived": {"message": "No response received"},
+  "loadFailed": {"message": "Failed to load"},
+  "retry": {"message": "Retry"},
+  "searchFailed": {"message": "Search failed"},
+  "retrySearch": {"message": "Retry search"},
+  "enterNoteContent": {"message": "Please enter note content"},
+  "noteAdded": {"message": "Note added"},
+  "addFailedStatus": {
+    "message": "Failed to add note: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "loadFailedStatus": {
+    "message": "Failed to load: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "searchFailedStatus": {
+    "message": "Search failed: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "noRelatedNotes": {"message": "No matching notes found"},
+  "noNotes": {"message": "No notes yet. Start writing!"},
+  "openNote": {"message": "Open note"},
+  "noteUnavailable": {"message": "This note cannot be opened right now"},
+  "openMemosFailedStatus": {
+    "message": "Failed to open Memos: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "openNoteFailedStatus": {
+    "message": "Failed to open note: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "justNow": {"message": "Just now"},
+  "minutesAgo": {
+    "message": "$count$ minutes ago",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "hoursAgo": {
+    "message": "$count$ hours ago",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "daysAgo": {
+    "message": "$count$ days ago",
+    "placeholders": {"count": {"content": "$1"}}
+  },
+  "apiUrlLabel": {"message": "API URL *"},
+  "apiUrlPlaceholder": {"message": "https://your-memos.com"},
+  "apiUrlHelp": {"message": "Enter your Memos server URL (without the /api path)"},
+  "apiKeyLabel": {"message": "Access Token (optional)"},
+  "apiKeyPlaceholder": {"message": "Create one in Memos Settings → Access Tokens"},
+  "apiKeyHelp": {"message": "View and create all your notes, including private notes. Create a token in Memos Settings → Access Tokens."},
+  "saveSettings": {"message": "Save Settings"},
+  "testConnection": {"message": "Test Connection"},
+  "testing": {"message": "Testing..."},
+  "testingConnection": {"message": "Testing connection..."},
+  "enterApiUrl": {"message": "Please enter the API URL"},
+  "enterApiUrlFirst": {"message": "Please enter the API URL first"},
+  "settingsSaved": {"message": "Settings saved"},
+  "connectionFailedNoResponse": {"message": "Connection failed: No response received"},
+  "connectionFailedStatus": {
+    "message": "Connection failed: $error$",
+    "placeholders": {"error": {"content": "$1"}}
+  },
+  "aboutMemos": {"message": "About Memos"},
+  "aboutDescription": {"message": "Memos is a lightweight note-taking app that supports Docker deployment."},
+  "viewMemosOnGithub": {"message": "View Memos on GitHub"},
+  "duplicatePageToken": {"message": "The API returned a duplicate page token"},
+  "connectionSuccess": {"message": "Connection successful! Settings are working"},
+  "connectionSuccessPathWarning": {"message": "Connection successful, but the API path may be incorrect"}
+}

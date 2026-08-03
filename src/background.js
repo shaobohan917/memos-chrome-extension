@@ -1,6 +1,10 @@
 // Background service worker for Memos Notes Chrome Extension
 // This file runs in the background to handle extension lifecycle events
 
+function t(key, substitutions) {
+  return chrome.i18n.getMessage(key, substitutions) || key;
+}
+
 // Install event - runs when the extension is first installed
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
@@ -88,9 +92,9 @@ async function testConnection(apiUrl, apiKey) {
     });
 
     if (response.ok) {
-      return { success: true, message: '连接成功！设置正常工作' };
+      return { success: true, message: t('connectionSuccess') };
     } else if (response.status === 404) {
-      return { success: true, message: '连接成功，但 API 路径可能不正确' };
+      return { success: true, message: t('connectionSuccessPathWarning') };
     } else {
       return { success: false, error: `HTTP ${response.status}` };
     }
@@ -159,7 +163,7 @@ async function listAllMemos(apiUrl, apiKey, state) {
     });
     if (pageToken) {
       if (seenPageTokens.has(pageToken)) {
-        throw new Error('API 返回了重复的分页令牌');
+        throw new Error(t('duplicatePageToken'));
       }
       seenPageTokens.add(pageToken);
       params.set('pageToken', pageToken);

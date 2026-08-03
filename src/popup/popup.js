@@ -1,9 +1,13 @@
 // State management
 let notes = [];
+let recentNotes = [];
+let searchQuery = '';
 let isLoading = false;
+let searchDebounceTimer = null;
+let searchRequestId = 0;
 
 // DOM Elements (will be initialized after DOM is ready)
-let noteInput, addBtn, refreshBtn, settingsBtn, notesList, statusMessage;
+let noteInput, addBtn, refreshBtn, openMemosBtn, searchInput, clearSearchBtn, settingsBtn, notesList, notesTitle, statusMessage;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
@@ -11,13 +15,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   noteInput = document.getElementById('noteInput');
   addBtn = document.getElementById('addBtn');
   refreshBtn = document.getElementById('refreshBtn');
+  openMemosBtn = document.getElementById('openMemosBtn');
+  searchInput = document.getElementById('searchInput');
+  clearSearchBtn = document.getElementById('clearSearchBtn');
   settingsBtn = document.getElementById('settingsBtn');
   notesList = document.getElementById('notesList');
+  notesTitle = document.getElementById('notesTitle');
   statusMessage = document.getElementById('statusMessage');
 
   // Attach event listeners
   addBtn.addEventListener('click', addNote);
   refreshBtn.addEventListener('click', loadNotes);
+  openMemosBtn.addEventListener('click', openMemosPage);
+  searchInput.addEventListener('input', handleSearchInput);
+  clearSearchBtn.addEventListener('click', clearSearch);
+  notesList.addEventListener('click', (e) => {
+    const noteItem = e.target.closest('.note-item');
+    if (noteItem) {
+      openNote(noteItem.dataset.noteName);
+    }
+  });
   settingsBtn.addEventListener('click', () => {
     chrome.runtime.openOptionsPage();
   });
@@ -66,6 +83,7 @@ async function getConfig() {
 async function loadNotes() {
   if (isLoading) return;
   isLoading = true;
+  searchRequestId++;
 
   try {
     const config = await getConfig();
@@ -76,7 +94,7 @@ async function loadNotes() {
 
     showLoading();
 
-    // Send message to background service worker to load notes
+    // Send message to background service worker to load recent notes
     const response = await chrome.runtime.sendMessage({
       action: 'loadNotes',
       apiUrl: config.apiUrl,
@@ -87,20 +105,19 @@ async function loadNotes() {
       throw new Error(response?.error || '未收到响应');
     }
 
-    notes = response.notes || [];
-
-    if (notes.length === 0) {
-      notesList.innerHTML = '<div class="empty-state">暂无笔记，开始记录吧！</div>';
+    recentNotes = response.notes || [];
+    if (searchQuery) {
+      await searchNotes(searchQuery);
     } else {
+      notes = recentNotes;
       renderNotes();
+      hideStatus();
     }
-
-    hideStatus();
   } catch (error) {
     notesList.innerHTML = `
       <div class="error-state">
         <p>加载失败</p>
-        <p class="error-detail">${error.message}</p>
+        <p class="error-detail">${escapeHtml(error.message)}</p>
         <button class="btn-secondary" id="retryBtn">重试</button>
       </div>
     `;
@@ -109,6 +126,61 @@ async function loadNotes() {
   } finally {
     isLoading = false;
   }
+}
+
+// Search all notes through the background service worker
+async function searchNotes(query) {
+  const requestId = ++searchRequestId;
+  const config = await getConfig();
+  if (!config.apiUrl || requestId !== searchRequestId || query !== searchQuery) return;
+
+  showLoading();
+
+  try {
+    const response = await chrome.runtime.sendMessage({
+      action: 'searchNotes',
+      apiUrl: config.apiUrl,
+      apiKey: config.apiKey,
+      query
+    });
+
+    if (requestId !== searchRequestId || query !== searchQuery) return;
+    if (!response || !response.success) {
+      throw new Error(response?.error || '未收到响应');
+    }
+
+    notes = response.notes || [];
+    renderNotes();
+    hideStatus();
+  } catch (error) {
+    if (requestId !== searchRequestId || query !== searchQuery) return;
+
+    notesList.innerHTML = `
+      <div class="error-state">
+        <p>搜索失败</p>
+        <p class="error-detail">${escapeHtml(error.message)}</p>
+        <button class="btn-secondary" id="retrySearchBtn">重试搜索</button>
+      </div>
+    `;
+    document.getElementById('retrySearchBtn')?.addEventListener('click', () => searchNotes(searchQuery));
+    showStatus('搜索失败: ' + error.message, 'error');
+  }
+}
+
+function handleSearchInput(event) {
+  searchQuery = event.target.value.trim();
+  clearSearchBtn.classList.toggle('hidden', !searchQuery);
+  notesTitle.textContent = searchQuery ? '搜索结果' : '最近笔记';
+  clearTimeout(searchDebounceTimer);
+
+  if (!searchQuery) {
+    searchRequestId++;
+    notes = recentNotes;
+    renderNotes();
+    return;
+  }
+
+  searchDebounceTimer = setTimeout(() => searchNotes(searchQuery), 250);
 }
 
 // Add new note
@@ -154,14 +226,83 @@ async function addNote() {
 
 // Render notes list
 function renderNotes() {
+  notesTitle.textContent = searchQuery ? '搜索结果' : '最近笔记';
+
+  if (notes.length === 0) {
+    notesList.innerHTML = searchQuery
+      ? `
+        <div class="empty-state">
+          <p>没有找到相关笔记</p>
+          <button class="btn-secondary" id="clearSearchStateBtn">清除搜索</button>
+        </div>
+      `
+      : '<div class="empty-state">暂无笔记，开始记录吧！</div>';
+    document.getElementById('clearSearchStateBtn')?.addEventListener('click', clearSearch);
+    return;
+  }
+
   notesList.innerHTML = notes.map(note => `
-    <div class="note-item">
+    <button type="button" class="note-item" data-note-name="${escapeHtml(note.name || '')}" aria-label="打开笔记">
       <div class="note-content">${escapeHtml(note.content || '')}</div>
       <div class="note-meta">
         <span class="note-date">${formatDate(note.createTime || note.createdTs || note.created_at || note.createdAt || Date.now())}</span>
+        <span class="note-open-hint">打开笔记 ↗</span>
       </div>
-    </div>
+    </button>
   `).join('');
+}
+
+// Clear the current search query
+function clearSearch() {
+  clearTimeout(searchDebounceTimer);
+  searchRequestId++;
+  searchQuery = '';
+  searchInput.value = '';
+  clearSearchBtn.classList.add('hidden');
+  notes = recentNotes;
+  renderNotes();
+}
+
+// Open the configured Memos home page
+async function openMemosPage() {
+  const config = await getConfig();
+  if (!config.apiUrl) {
+    showStatus('请先配置 API 地址', 'error');
+    return;
+  }
+
+  try {
+    await chrome.tabs.create({ url: config.apiUrl });
+  } catch (error) {
+    showStatus('打开 Memos 失败: ' + error.message, 'error');
+  }
+}
+
+// Open a specific memo in Memos
+async function openNote(noteName) {
+  const config = await getConfig();
+  const memoUrl = buildMemoUrl(config.apiUrl, noteName);
+
+  if (!memoUrl) {
+    showStatus('该笔记暂时无法打开', 'warning');
+    return;
+  }
+
+  try {
+    await chrome.tabs.create({ url: memoUrl });
+  } catch (error) {
+    showStatus('打开笔记失败: ' + error.message, 'error');
+  }
+}
+
+// Memos API names are usually returned as "memos/{id}".
+function buildMemoUrl(apiUrl, noteName) {
+  const cleanApiUrl = String(apiUrl || '').replace(/\/+$/, '');
+  const cleanName = String(noteName || '').replace(/^\/+/, '');
+  if (!cleanApiUrl || !cleanName) return '';
+
+  const memoPath = cleanName.startsWith('memos/') ? cleanName : `memos/${cleanName}`;
+  return `${cleanApiUrl}/${memoPath}`;
 }
 
 // Show loading state

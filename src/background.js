@@ -53,6 +53,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
+  if (request.action === 'searchNotes') {
+    searchNotes(request.apiUrl, request.apiKey, request.query)
+      .then(result => sendResponse(result))
+      .catch(error => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
   if (request.action === 'addNote') {
     addNote(request.apiUrl, request.apiKey, request.content)
       .then(result => sendResponse(result))
@@ -110,19 +117,85 @@ async function loadNotes(apiUrl, apiKey) {
     }
 
     const data = await response.json();
-    const memos = data.memos || [];
-
-    // Normalize field names: Memos v0.28 uses 'content', older versions use different names
-    const notes = memos.map(memo => ({
-      ...memo,
-      content: memo.content || '',
-      createTime: memo.createTime || memo.createdTs || memo.createdAt || memo.created_at || Date.now()
-    }));
+    const notes = normalizeMemos(data.memos || []);
 
     return { success: true, notes };
   } catch (error) {
     return { success: false, error: error.message };
   }
+}
+
+// Search all memos through the Memos API, including archived memos.
+async function searchNotes(apiUrl, apiKey, query) {
+  try {
+    const normalizedQuery = String(query || '').trim().toLocaleLowerCase();
+    if (!normalizedQuery) return { success: true, notes: [] };
+
+    const [normalMemos, archivedMemos] = await Promise.all([
+      listAllMemos(apiUrl, apiKey, 'NORMAL'),
+      listAllMemos(apiUrl, apiKey, 'ARCHIVED')
+    ]);
+    const notes = [...normalMemos, ...archivedMemos]
+      .filter(memo => memo.content.toLocaleLowerCase().includes(normalizedQuery))
+      .sort((a, b) => getMemoTime(b) - getMemoTime(a));
+
+    return { success: true, notes };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+async function listAllMemos(apiUrl, apiKey, state) {
+  const cleanApiUrl = apiUrl.replace(/\/+$/, '');
+  const memos = [];
+  const seenPageTokens = new Set();
+  let pageToken = '';
+
+  while (true) {
+    const params = new URLSearchParams({
+      pageSize: '1000',
+      state,
+      orderBy: 'create_time desc'
+    });
+    if (pageToken) {
+      if (seenPageTokens.has(pageToken)) {
+        throw new Error('API 返回了重复的分页令牌');
+      }
+      seenPageTokens.add(pageToken);
+      params.set('pageToken', pageToken);
+    }
+
+    const response = await fetch(`${cleanApiUrl}/api/v1/memos?${params.toString()}`, {
+      method: 'GET',
+      headers: buildHeaders(apiKey)
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    memos.push(...normalizeMemos(data.memos || []));
+    pageToken = data.nextPageToken || '';
+    if (!pageToken) break;
+  }
+
+  return memos;
+}
+
+function getMemoTime(memo) {
+  const value = memo.createTime || memo.createdTs || memo.created_at || memo.createdAt || 0;
+  const timestamp = typeof value === 'number' && value < 10000000000 ? value * 1000 : value;
+  return new Date(timestamp).getTime() || 0;
+}
+
+function normalizeMemos(memos) {
+  // Normalize field names: Memos v0.28 uses 'content', older versions use different names
+  return memos.map(memo => ({
+    ...memo,
+    content: memo.content || '',
+    createTime: memo.createTime || memo.createdTs || memo.createdAt || memo.created_at || Date.now()
+  }));
 }
 
 // Add note to Memos API
